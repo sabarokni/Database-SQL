@@ -1,0 +1,119 @@
+-- Challenge Question 1
+    
+-- In lieu of the usual lab on views, here is a more advanced question for you to try. I will then post the answer once you give it a try:
+-- *****
+-- Create the following report in a single query(which can contain joins and subqueries etc), then create a view from it:
+-- From the city table select the following: city name, district, city population
+-- From the country table select the following: country code, country name, continent, region, gnp (gross national product) and surface area
+-- Create the following report using LEFT JOIN and subqueries and aggregations, then create a view from the report:
+-- We want to know the following information:
+-- - The continent name
+-- - The region
+-- - The country name
+-- - The average gross national product per city
+-- - The average gross national product per square kilometer
+-- The query should meet the following conditions:
+-- - It should only include countries where the percent of the population speaking an official language is more than 60%
+-- - It should only include countries where the highest grossing city has a greater gnp than the lowest grossing country
+-- - The query should be sorted by the average gnp per square km in descending order
+-- - It should only return the top 10 countries
+-- --------------------
+CREATE VIEW gnp_table AS
+    SELECT DISTINCT
+        cy.name AS Country_name,
+        cy.continent,
+        cy.region,
+        cy.GNP,
+        cy.gnp / cy.SurfaceArea AS avg_gnp_per_kilometer,
+        cy.gnp / (SELECT 
+                COUNT(city.name)
+            FROM
+                city
+            WHERE
+                city.CountryCode = cy.Code) AS avg_gnp_per_city
+    FROM
+        city AS c
+            LEFT JOIN
+        country AS cy ON c.CountryCode = cy.code
+    WHERE
+        cy.code IN (SELECT 
+                countrycode
+            FROM
+                countrylanguage
+            WHERE
+                IsOfficial = 'T' AND percentage > 60)
+            AND GNP > (SELECT 
+                MIN(GNP)
+            FROM
+                country)
+    ORDER BY avg_gnp_per_kilometer DESC
+    LIMIT 10;
+ 
+-- Part 2 - Update the view to sort by avg_gnp_per_person instead of avg_gnp_per_sq_km
+
+CREATE OR REPLACE VIEW gnp_table AS
+    SELECT DISTINCT
+        cy.name AS Country_name,
+        cy.continent,
+        cy.region,
+        cy.GNP,
+        cy.GNP / cy.Population AS avg_gnp_per_person,
+        cy.gnp / cy.SurfaceArea AS avg_gnp_per_kilometer,
+        cy.gnp / (SELECT 
+                COUNT(city.name)
+            FROM
+                city
+            WHERE
+                city.CountryCode = cy.Code) AS avg_gnp_per_city
+    FROM
+        city AS c
+            LEFT JOIN
+        country AS cy ON c.CountryCode = cy.code
+    WHERE
+        cy.code IN (SELECT 
+                countrycode
+            FROM
+                countrylanguage
+            WHERE
+                IsOfficial = 'T' AND percentage > 60)
+            AND GNP > (SELECT 
+                MIN(GNP)
+            FROM
+                country)
+    ORDER BY avg_gnp_per_person DESC
+    LIMIT 10;
+
+-- Part 3 - Update the view to join the countrylanguage table as well to the data set and select the total number of languages spoken in each country listed in the final report-- 
+
+create or replace  view gnp_table as 
+SELECT DISTINCT
+    cy.name AS Country_name,
+    cy.continent,
+    cy.region,
+    cy.GNP,
+    cy.GNP / cy.Population AS avg_gnp_per_person,
+    cy.gnp / cy.SurfaceArea AS avg_gnp_per_kilometer,
+    cy.gnp / (SELECT 
+            COUNT(city.name)
+        FROM
+            city
+        WHERE
+            city.CountryCode = cy.Code) AS avg_gnp_per_city
+FROM
+    city AS c
+        LEFT JOIN
+    country AS cy ON c.CountryCode = cy.code
+        LEFT JOIN
+    (SELECT 
+        countrycode, count(*) AS total_official_spoken
+    FROM
+        countrylanguage
+    WHERE
+        IsOfficial = 'T' AND percentage > 60
+    GROUP BY CountryCode) AS cl_official ON c.CountryCode = cl_official.CountryCode
+        AND GNP > (SELECT 
+            MIN(GNP)
+        FROM
+            country)
+ORDER BY avg_gnp_per_person DESC
+LIMIT 10;

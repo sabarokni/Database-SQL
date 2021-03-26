@@ -1,0 +1,188 @@
+Lab6
+
+-- A - Querying tables city and country:
+--  1.Using INNER JOIN ..ON, write a query that displays the name of cities, the cities' population and cities' continent. Sort the result by continent, then by city population, then by city name.-- Note that the field called 'name' is present in the two tables, use a table alias to resolve the conflict.
+
+SELECT 
+    c.name, c.population, continent
+FROM
+    city AS c
+        INNER JOIN
+    country ON c.CountryCode = country.Code
+ORDER BY continent , c.Population , c.Name
+LIMIT 1000000;
+
+-- 2.Rewrite the previous query using WHERE/FROM.
+
+SELECT 
+    c.name, c.population, continent
+FROM
+    city AS c,
+    country
+WHERE
+    c.CountryCode = country.Code
+ORDER BY continent , c.Population , c.Name;
+
+-- 3.Rewrite the query in question 1 to countries that became independent in 1960.
+
+
+SELECT 
+    country.name,c.name, c.population, continent,IndepYear
+FROM
+    city AS c
+        INNER JOIN
+    country  ON c.CountryCode = code
+    and IndepYear=1960
+ORDER BY country.name,c.Population , c.Name;
+
+
+-- 4.Rewrite the previous query using WHERE/FROM.
+
+
+SELECT 
+    country.name,c.name, c.population, continent,IndepYear
+FROM
+    city AS c,
+    country
+WHERE
+    c.CountryCode = code
+        AND IndepYear = 1960
+ORDER BY country.name,c.Population , c.Name;
+
+-- 5.Using INNER JOIN ..ON, write a query that displays, for the city of Ottawa, the name of the city and the head of state of its country.
+SELECT 
+    c.name, HeadOfState
+FROM
+    city AS c
+        INNER JOIN
+    country ON c.CountryCode = country.code
+WHERE
+    c.name = 'Ottawa';
+
+
+-- 6.Using INNER JOIN ..ON, write a query that displays the name of the city, the city population, the continent, and the country population of the city of Toronto.
+
+SELECT 
+    c.name, c.population as city_pop, cy.continent, cy.population as country_pop
+FROM
+    city AS c
+        INNER JOIN
+    country as cy ON c.CountryCode = cy.code
+WHERE
+    c.name = 'Toronto' ;
+-- ------------------------------
+-- B. Querying tables city and countryLanguage:
+
+-- 1.Using INNER JOIN ..ON, write a query that answers the following question. What languages along with their percentage are spoken in the city of Ottawa?
+
+SELECT 
+    c.name, cl.language, cl.percentage
+FROM
+    city AS c
+        INNER JOIN
+    countrylanguage AS cl ON c.countrycode = cl.CountryCode
+and
+    c.name = 'Ottawa'
+ORDER BY Percentage;
+
+
+-- 2.Using WHERE/FROM, write a query that answers the following question. What official languages along with their percentage are spoken in the city of Ottawa?
+
+SELECT 
+    Name, language, percentage,IsOfficial
+FROM
+    city as c,
+    countrylanguage as cl
+WHERE
+    c.countrycode = cl.CountryCode
+       and cl.IsOfficial='T'
+         and c.name = 'Ottawa'
+ORDER BY Percentage;
+
+
+-- 3.Using INNER JOIN ..ON, write a query that reports the percentage of people speaking an official language in the city of Ottawa as well as the number of people speaking Polish in the city of Ottawa?
+
+SELECT 
+    c.name, cl.language, cl.percentage, cl.IsOfficial,c.Population,(c.Population * cl.Percentage/ 100) AS total_Official
+FROM
+    city AS c
+        INNER JOIN
+    countrylanguage AS cl ON c.CountryCode = cl.CountryCode
+WHERE
+    cl.IsOfficial='T'
+    and (Language = 'Polish'
+        or c.name = 'Ottawa');
+        
+
+
+-- 4.Using INNER JOIN ..ON and SUM, write a query that reports the total percentage of people speaking an official language or speaking Italian in the city of Ottawa ?
+
+SELECT 
+    c.name,
+    cl.Language,
+    cl.IsOfficial,
+    sum(Percentage) as total_pct
+FROM
+    city AS c
+        INNER JOIN
+    countrylanguage AS cl ON c.CountryCode = cl.CountryCode
+where c.Name = 'Ottawa'
+and (cl.IsOfficial='T' or cl.Language='Italian')
+group by c.name, cl.language, cl.IsOfficial
+;
+        
+-- ----------------------------
+
+-- c.Querying tables city, country and countryLanguage:
+
+-- 1.Using INNER JOIN ..ON the three tables, write a query that displays the name of the city, the city continent, the city head of state, the year of independence and the total number of people who speak Italian in the city of Toronto.
+
+SELECT 
+    c.name,
+    cy.Continent,
+    cy.HeadOfState,
+    cy.IndepYear,
+    cl.Percentage,
+    cl.Language,
+    (c.Population * cl.Percentage/ 100) AS total_Italian_Speakers
+FROM
+    city AS c
+        INNER JOIN
+    country AS cy ON c.CountryCode = cy.Code
+        INNER JOIN
+    countrylanguage AS cl ON c.CountryCode = cl.CountryCode
+        AND cl.Language = 'Italian'
+        AND c.name = 'Toronto';
+
+-- 2.Rewrite the previous query using WHERE/FROM.
+SELECT 
+    c.name,
+    cy.Continent,
+    cy.HeadOfState,
+    cy.IndepYear,
+    cl.Percentage,
+    cl.Language,
+    (c.Population * cl.Percentage / 100) AS total_Italian_Speakers
+FROM
+    city AS c,
+    country AS cy,
+    countrylanguage AS cl
+WHERE
+    c.CountryCode = cy.Code
+        AND c.CountryCode = cl.CountryCode
+        AND cl.Language = 'Italian'
+        AND c.name = 'Toronto';
+-- 3.Using LEFT JOIN ..ON the three tables, write a query that displays the city continent, the country the city is in, the city name and the language spoken in that city
+SELECT 
+    c.name,
+    country.continent,
+    country.name,
+    cl.language,
+    cl.Percentage
+FROM
+    city AS c
+        LEFT JOIN
+    country ON c.countrycode = country.Code
+        LEFT JOIN
+    countrylanguage AS cl ON c.CountryCode = cl.CountryCode
+        AND cl.IsOfficial = 'T';
