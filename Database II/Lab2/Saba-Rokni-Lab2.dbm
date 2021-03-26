@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+CAUTION: Do not modify this file unless you know what you are doing.
+         Unexpected results may occur if the code is changed deliberately.
+-->
+<dbmodel pgmodeler-ver="0.9.2-alpha1" last-position="18,0" last-zoom="1" max-obj-count="7"
+	 default-schema="public" default-owner="postgres">
+<database name="new_database" is-template="false" allow-conns="true">
+</database>
+
+<schema name="public" layer="0" fill-color="#e1e1e1" sql-disabled="true">
+</schema>
+
+<table name="Student" layer="0" collapse-mode="2" max-obj-count="3">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<position x="180" y="400"/>
+	<column name="StudentID" not-null="true">
+		<type name="char" length="10"/>
+	</column>
+	<column name="StudentFName" not-null="true">
+		<type name="character varying" length="20"/>
+	</column>
+	<column name="StudentLName">
+		<type name="character varying" length="20"/>
+	</column>
+	<constraint name="Student_pk" type="pk-constr" table="public.&quot;Student&quot;">
+		<columns names="StudentID" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="Course" layer="0" collapse-mode="2" max-obj-count="2">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<position x="220" y="120"/>
+	<column name="CourseID" not-null="true">
+		<type name="char" length="10"/>
+	</column>
+	<column name="CourseName" not-null="true">
+		<type name="character varying" length="25"/>
+	</column>
+	<constraint name="Course_pk" type="pk-constr" table="public.&quot;Course&quot;">
+		<columns names="CourseID" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<textbox name="Txt1" layer="0" font-size="9">
+	<position x="80" y="160"/>
+	<comment><![CDATA[Saba Rokni
+Date:2020-01-23]]></comment>
+</textbox>
+
+<table name="many_Student_has_many_Course" layer="0" collapse-mode="2" max-obj-count="3">
+	<schema name="public"/>
+	<position x="80" y="240"/>
+	<column name="Grade">
+		<type name="char" length="7"/>
+	</column>
+
+	<customidxs object-type="column">
+		<object name="CourseID_Course" index="1"/>
+		<object name="StudentID_Student" index="0"/>
+	</customidxs>
+
+	<customidxs object-type="constraint">
+		<object name="Course_fk" index="2"/>
+		<object name="Student_fk" index="1"/>
+		<object name="many_Student_has_many_Course_pk" index="0"/>
+	</customidxs>
+</table>
+
+<relationship name="Student_has_many_many_Student_has_many_Course" type="rel1n" layer="0"
+	 src-col-pattern="{sc}_{st}"
+	 pk-pattern="{dt}_pk" uq-pattern="{dt}_uq"
+	 src-fk-pattern="{st}_fk"
+	 src-table="public.&quot;Student&quot;"
+	 dst-table="public.&quot;many_Student_has_many_Course&quot;"
+	 src-required="true" dst-required="false"
+	 identifier="true"
+/>
+
+<relationship name="Course_has_many_many_Student_has_many_Course" type="rel1n" layer="0"
+	 src-col-pattern="{sc}_{st}"
+	 pk-pattern="{dt}_pk" uq-pattern="{dt}_uq"
+	 src-fk-pattern="{st}_fk"
+	 src-table="public.&quot;Course&quot;"
+	 dst-table="public.&quot;many_Student_has_many_Course&quot;"
+	 src-required="true" dst-required="false"
+	 identifier="true"
+/>
+
+<table name="Department" layer="0" collapse-mode="2" max-obj-count="3">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<position x="740" y="420"/>
+	<column name="Dept_ID" not-null="true">
+		<type name="int4" length="0"/>
+	</column>
+	<column name="Dep_Name">
+		<type name="text" length="0"/>
+	</column>
+	<column name="Dep_Mannager">
+		<type name="text" length="0"/>
+	</column>
+	<constraint name="Department_pk" type="pk-constr" table="public.&quot;Department&quot;">
+		<columns names="Dept_ID" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="Employee" layer="0" collapse-mode="2" max-obj-count="3">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<position x="720" y="140"/>
+	<column name="E_ID" not-null="true">
+		<type name="int4" length="0"/>
+	</column>
+	<column name="E_Name">
+		<type name="smallint" length="0"/>
+	</column>
+	<column name="E_Specialization">
+		<type name="int4" length="0"/>
+	</column>
+	<constraint name="Employee_pk" type="pk-constr" table="public.&quot;Employee&quot;">
+		<columns names="E_ID" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="many_Department_has_many_Employee" layer="0" collapse-mode="2" max-obj-count="3">
+	<schema name="public"/>
+	<position x="920" y="280"/>
+</table>
+
+<relationship name="Department_has_many_many_Department_has_many_Employee" type="rel1n" layer="0"
+	 src-col-pattern="{sc}_{st}"
+	 pk-pattern="{dt}_pk" uq-pattern="{dt}_uq"
+	 src-fk-pattern="{st}_fk"
+	 src-table="public.&quot;Department&quot;"
+	 dst-table="public.&quot;many_Department_has_many_Employee&quot;"
+	 src-required="true" dst-required="false"
+	 identifier="true"
+/>
+
+<relationship name="Employee_has_many_many_Department_has_many_Employee" type="rel1n" layer="0"
+	 src-col-pattern="{sc}_{st}"
+	 pk-pattern="{dt}_pk" uq-pattern="{dt}_uq"
+	 src-fk-pattern="{st}_fk"
+	 src-table="public.&quot;Employee&quot;"
+	 dst-table="public.&quot;many_Department_has_many_Employee&quot;"
+	 src-required="true" dst-required="false"
+	 identifier="true"
+/>
+
+</dbmodel>
