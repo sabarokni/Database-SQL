@@ -1,0 +1,117 @@
+-- Midterm DataBase
+
+-- 1. Calculate the number of British cities stored in the table (code GBR)
+SELECT 
+    countrycode, COUNT(*)
+FROM
+    city
+WHERE
+    countrycode = 'GBR';
+
+-- 2. Calculate the average population of the cities of China (code CHN)
+SELECT 
+    countrycode, AVG(population)
+FROM
+    city
+WHERE
+    countrycode = 'CHN';
+
+-- 3. Create the following query:
+-- Select all available data matching the constraints below
+-- Select data from all countries except those in Europe and Africa
+-- Sort the output by continent and then by name
+
+SELECT 
+    name, continent
+FROM
+    country
+WHERE
+    continent NOT IN ('Europe' , 'Africa')
+ORDER BY continent , name;
+
+-- 4. Create the following query:
+-- Select all data for all countries whose IndepYear field (column) is not defined
+-- Only return countries whose names contain the letter 'a'
+-- Only return countries whose names have at least 5 characters
+-- Sort the result by the country name
+-- Return only 20 countries, omitting the first 10 countries in the list
+
+SELECT 
+    Name, IndepYear
+FROM
+    country
+WHERE
+    IndepYear IS NULL AND name LIKE '%a%'
+        AND name LIKE '%_____%'
+ORDER BY name
+LIMIT 10 , 20;
+
+-- 5. Create the following report:
+-- Display the district, the country code and the following aggregations:
+-- the total population of the cities in each district
+-- the average population of the cities in each district
+-- the maximum population of the cities in each district
+-- the minimum population of the cities in each district
+-- the population difference between the most populated and least populated city in each district
+-- Select only the districts the contain the letter 'c' in their name
+-- Limit the result set to the top 50 most populated districts
+
+SELECT 
+    district,
+    countrycode,
+    SUM(Population) AS Sum_Population,
+    AVG(Population) AS AVG_Population,
+    MAX(Population) AS Most_Population,
+    MIN(Population) AS Least_Population,
+    MAX(Population) - MIN(Population) AS pop_diffrence
+FROM
+    city
+GROUP BY district , countrycode
+HAVING District LIKE '%c%'
+ORDER BY Most_Population DESC
+LIMIT 50;
+
+-- 6. Please run the following query and note the errors it generates. Fix the query and submit it once it runs with no errors.
+
+SELECT 
+    CountryCode, COUNT(*) AS Total_Population
+FROM
+    city
+WHERE
+    Population > 50000 AND Name LIKE '%c%'
+GROUP BY Countrycode
+ORDER BY total_Population DESC
+LIMIT 5 , 10;
+
+-- 7. Create the following report:
+-- Displays the CountryCode of a country along with the number of cities in that country and the total population of its cities
+-- Returns the population of the city with the most inhabitants
+-- Returns the population of the city with the least inhabitants
+-- Returns only countries that have at least 50 cities
+-- Sort the result by the most populated cities in ascending order
+
+SELECT 
+    countrycode,
+    COUNT(*) AS number_cities,
+    SUM(Population) AS Sum_Population,
+    AVG(Population) AS AVG_Population,
+    MAX(Population) AS Most_Population,
+    MIN(Population) AS Least_Population
+FROM
+    city
+GROUP BY countrycode
+HAVING number_cities > 50
+ORDER BY Most_Population ASC;
+
+-- 10. Please run the following query and note the errors it generates. Fix the query and submit it once it runs with no errors.
+
+SELECT 
+    Continent,
+    AVG(Indepyear) AS Avg_Indep_Year,
+    MAX(Population),
+    MIN(Population)
+FROM
+    country
+GROUP BY Continent , IndepYear
+HAVING MIN(Population) > 10000
+LIMIT 1 , 10;

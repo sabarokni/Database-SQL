@@ -1,0 +1,111 @@
+Finall Practical Exam 
+
+-- 1 -- Question 1 
+-- Create the following report in a single query:
+-- Select the countries (country code, country name, and life expectancy) which have a life expectancy greater than
+-- the average life expectancy and rank them by life expectancy from greatest to lowest. Only display the top 10 countries.
+
+SELECT 
+    cy.code, cy.name, cy.LifeExpectancy
+FROM
+    country AS cy
+WHERE
+    LifeExpectancy > (SELECT 
+            AVG(LifeExpectancy)
+        FROM
+            country)
+ORDER BY LifeExpectancy DESC
+LIMIT 10;
+
+-- Question 2 
+-- Prepare a report where you will show the departure airport, arrival airport, the flight number,
+-- the airline, the days it operates, the flight duration, the name of the departure airport as well as the departure country.
+-- Only include airports that have flights departing on day 2 of the week as well as have a flight duration of at least 500 minutes
+-- Sort the result by flight duration in descending order.
+
+SELECT 
+    fl.departure,
+    fl.arrival,
+    fl.flightnum,
+    fl.airline,
+    fl.day_op,
+    fl.duration,
+    cs.name,
+    ap.code
+FROM
+    flights AS fl
+        LEFT JOIN
+    airports AS ap ON fl.departure = ap.code
+    left join 
+    countries as cs  on ap.country =cs.code
+    where fl.day_op LIKE '%2%'
+        AND fl.duration <= 500;
+        
+-- Question 3
+-- Prepare a report which will show the top aircraft for each airline based on the number of flights serviced.
+-- Only display aircraft used for at least 10 flights
+-- Order the result by airline and then by the total number of flights serviced.
+
+SELECT 
+    flights.airline,
+    aircrafts.name AS aircraft_name,
+    COUNT(*) AS total_flights_serviced
+FROM
+    flights
+        LEFT JOIN
+    aircrafts ON flights.aircraft = aircrafts.code
+GROUP BY flights.airline , aircrafts.name
+having total_flights_serviced <=10 
+ORDER BY flights.airline, total_flights_serviced DESC;
+
+-- Question 4
+-- Create a report of the airlines sorted by the most flights per airline in descending order. Make sure to include the
+-- airline name. Also, remove any airlines that are based in the United Kingdom (country code 'gb').
+SELECT 
+    flights.airline,
+    airlines.name AS airline_name,
+    COUNT(*) AS total_flights_serviced
+FROM
+    flights
+        LEFT JOIN
+    airlines ON flights.airline = airlines.code 
+    where airlines.country != "gp"    
+GROUP BY flights.airline , airlines.name
+ORDER BY total_flights_serviced DESC;
+
+-- Question 5
+-- Create a view that contains the airline name and the average flight duration for the airline, sorted in descending order.
+-- IMPORTANT: Please name your view in the following format q5_view_STUDENT_NUMBER where STUDENT_NUMBER should
+-- be replaced with your student id number
+
+CREATE OR REPLACE VIEW q5_view_STUDENT_NUMBER AS
+    SELECT DISTINCT
+    name,
+    (SELECT 
+            AVG(flights.duration)
+        FROM
+            flights
+        WHERE
+            flights.airline = airlines.code) AS avg_flight_duration
+FROM
+    airlines
+        LEFT JOIN
+    flights ON flights.airline = airlines.code
+ORDER BY avg_flight_duration DESC;
+
+
+-- Question 6 
+
+-- (PART 1) Create a report which selects all the columns in the "flights" table and the corresponding aircraft name for each flight as shown. Use a LEFT JOIN to make this happen.
+SELECT 
+    fl.*, ac.name
+FROM
+    flights AS fl
+        LEFT JOIN
+    aircrafts AS ac ON fl.aircraft = ac.code;
+    
+-- (PART 2) Create the same query result but this time using a correlated sub-query without a JOIN. Please submit both queries, do not just modify Part 1.
+SELECT 
+    fl.*, (select name from aircrafts where fl.aircraft = aircrafts.code) as aircraft_name
+FROM
+    flights AS fl;
